@@ -41,7 +41,6 @@ public class ServerConsole implements Runnable {
 	public ServerConsole() {
 		jvmArgs = "";
 		textAppender = new TextAppender(display);
-		
 	}
 	
 	public ServerConsole(DisplayServerConsole display) {
@@ -121,12 +120,12 @@ public class ServerConsole implements Runnable {
 				dispatchCommand("stop");
 				try {
 					server.waitFor();
-				} catch (InterruptedException e) {
+				} catch(InterruptedException e) {
 					e.printStackTrace();
 				}
 				stopServerThreads();
-				stopping = false;
 				System.out.println(Main.getBundle().getString("serverClosed"));
+				stopping = false;
 			}
 			
 		});
@@ -149,7 +148,7 @@ public class ServerConsole implements Runnable {
 				stopServer();
 				try {
 					serverStopping.join();
-				} catch (InterruptedException e) {
+				} catch(InterruptedException e) {
 					e.printStackTrace();
 				}
 				startServer();
@@ -206,7 +205,8 @@ public class ServerConsole implements Runnable {
 	}
 	
 	public boolean spigotDirValidation() {
-		boolean validate = spigotDir == null || !spigotDir.exists() || !spigotDir.getAbsolutePath().endsWith(".jar") || !spigotDir.isFile();
+		boolean validate = spigotDir == null || !spigotDir.exists() 
+				|| !spigotDir.getAbsolutePath().endsWith(".jar") || !spigotDir.isFile();
 		if(validate) {
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.initOwner(display.getOwnerStage());

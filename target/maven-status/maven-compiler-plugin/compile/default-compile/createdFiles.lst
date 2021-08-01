@@ -15,6 +15,7 @@ br\sergio\mcsc\Main.class
 br\sergio\mcsc\ServerConsole.class
 br\sergio\mcsc\model\ConsoleWindow$2.class
 br\sergio\mcsc\model\controls\ConsoleRadioButton.class
+br\sergio\mcsc\Launcher.class
 br\sergio\mcsc\model\elements\TextAppender.class
 br\sergio\mcsc\ServerConsole$1.class
 br\sergio\mcsc\model\elements\Currents.class
