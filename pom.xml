@@ -72,7 +72,7 @@
 		<dependency>
 			<groupId>br.sergio</groupId>
 			<artifactId>mathutils</artifactId>
-			<version>1.0</version>
+			<version>4.1</version>
 		</dependency>
 	</dependencies>
 </project>

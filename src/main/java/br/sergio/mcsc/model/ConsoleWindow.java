@@ -4,7 +4,7 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 
-import br.sergio.math.Polinomio;
+import br.sergio.math.Polynomial;
 import br.sergio.mcsc.Main;
 import br.sergio.mcsc.ServerConsole;
 import br.sergio.mcsc.SettingsListener;
@@ -89,7 +89,7 @@ public class ConsoleWindow implements SettingsListener {
 		double hSpacing = (scene.getWidth() - 7 * buttonWidth) / 8;
 		double buttonVerticalPos = sceneHeight - buttonHeight - vSpacing;
 		
-		Polinomio pol = new Polinomio(buttonWidth + hSpacing, hSpacing);
+		Polynomial pol = new Polynomial(buttonWidth + hSpacing, hSpacing);
 		
 		// Display text area
 		display = new DisplayServerConsole(stage);
@@ -220,7 +220,7 @@ public class ConsoleWindow implements SettingsListener {
 			switch(type) {
 				case WIDTH:
 					double hSpacing = (value - 7 * buttonWidth) / 8;
-					Polinomio pol = new Polinomio(buttonWidth + hSpacing, hSpacing);
+					Polynomial pol = new Polynomial(buttonWidth + hSpacing, hSpacing);
 					display.setPrefWidth(value);
 					start.setLayoutX(pol.f(0));
 					reload.setLayoutX(pol.f(1));
