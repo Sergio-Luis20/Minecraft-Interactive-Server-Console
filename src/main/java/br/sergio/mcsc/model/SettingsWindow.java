@@ -46,7 +46,7 @@ public class SettingsWindow implements SettingsListener {
 	private AnchorPane root;
 	private ToggleGroup group;
 	private ConsoleComboBox basicColors, families, sizes, lang;
-	private ConsoleTextField red, green, blue, hex, spigotField, jvmArgs;
+	private ConsoleTextField red, green, blue, hex, serverField, jvmArgs;
 	private ServerConsole console;
 	private Map<String, String> sortedColors;
 	
@@ -252,14 +252,14 @@ public class SettingsWindow implements SettingsListener {
 		
 		// Spigot options
 		// Spigot directory label
-		ConsoleLabel spigotLabel = new ConsoleLabel("spigotDir", true);
-		spigotLabel.relocate(30, 300);
+		ConsoleLabel serverLabel = new ConsoleLabel("serverDir", true);
+		serverLabel.relocate(30, 300);
 		
 		// Spigot directory text field
-		spigotField = new ConsoleTextField();
-		spigotField.setPrefSize(156, 25);
-		spigotField.relocate(200, 300);
-		spigotField.setText(Currents.spigotDir);
+		serverField = new ConsoleTextField();
+		serverField.setPrefSize(156, 25);
+		serverField.relocate(200, 300);
+		serverField.setText(Currents.spigotDir);
 		
 		// Sets the spigot directory on console
 		console.setSpigotDirectory(new File(Currents.spigotDir));
@@ -275,12 +275,12 @@ public class SettingsWindow implements SettingsListener {
 			public void handle(ActionEvent event) {
 				FileChooser chooser = new FileChooser();
 				FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter(Main.getBundle().getString("jarFile"), "*.jar");
-				chooser.setTitle(Main.getBundle().getString("spigotDir"));
+				chooser.setTitle(Main.getBundle().getString("serverDir"));
 				chooser.getExtensionFilters().add(filter);
 				chooser.setInitialDirectory(new File("").getAbsoluteFile());
 				File spigot = chooser.showOpenDialog(stage);
 				if(spigot != null) {
-					spigotField.setText(spigot.getAbsolutePath());
+					serverField.setText(spigot.getAbsolutePath());
 				}
 				search.toNormalStyle();
 			}
@@ -335,7 +335,7 @@ public class SettingsWindow implements SettingsListener {
 		
 		// Add nodes
 		root.getChildren().addAll(theme, basics, rgb, hexadecimal, basicColors, red, green, blue, hex, font, family, consoleSize, families, 
-				sizes, spigotLabel, spigotField, search, jvmArgsLabel, jvmArgs, langLabel, lang, apply);
+				sizes, serverLabel, serverField, search, jvmArgsLabel, jvmArgs, langLabel, lang, apply);
 		
 		// Update pending settings
 		Main.apply();
@@ -388,8 +388,8 @@ public class SettingsWindow implements SettingsListener {
 		return hex;
 	}
 
-	public ConsoleTextField getSpigotField() {
-		return spigotField;
+	public ConsoleTextField getServerField() {
+		return serverField;
 	}
 	
 	public ConsoleTextField getJVMArgs() {

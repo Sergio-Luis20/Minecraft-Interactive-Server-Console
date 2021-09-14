@@ -39,6 +39,7 @@ public class Main extends Application {
 	public void start(Stage primaryStage) {
 		instance = this;
 		serverConsole = new ServerConsole();
+		serverConsole.setJvmArgs(Currents.jvmArgs);
 		consoleWindow = new ConsoleWindow(serverConsole);
 		consoleWindow.createSettingsWindow();
 		serverConsole.setDisplay(consoleWindow.getDisplay());

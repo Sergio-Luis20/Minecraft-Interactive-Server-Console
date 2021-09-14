@@ -96,7 +96,7 @@ public class BtnApplyHandler implements EventHandler<ActionEvent>, SettingsListe
 		newColor = newColor.toLowerCase();
 		String fontFamily = settingsWindow.getFamilies().getSelectionModel().getSelectedItem().getText();
 		String consoleSize = settingsWindow.getSizes().getSelectionModel().getSelectedItem().getText() + "pt";
-		String spigotDir = settingsWindow.getSpigotField().getText();
+		String spigotDir = settingsWindow.getServerField().getText();
 		String jvmArgs = settingsWindow.getJVMArgs().getText();
 		String language = settingsWindow.getLang().getSelectionModel().getSelectedItem().getText();
 		if(console.isServerRunning() && (!spigotDir.equals(oldSpigot) || !jvmArgs.equals(oldJvmArgs))) {
