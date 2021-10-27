@@ -11,6 +11,7 @@ import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +22,7 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
-public class ServerConsole implements Runnable {
+public class ServerConsole {
 	
 	private Process server;
 	private BufferedReader serverInput, serverThrowerInput;
@@ -30,7 +31,7 @@ public class ServerConsole implements Runnable {
 	private DisplayServerConsole display;
 	private Thread reader, thrower, serverReader, serverThrower;
 	private Thread serverStopping, serverRestarting;
-	private File spigotDir;
+	private File serverDir;
 	private String jvmArgs;
 	private TextAppender textAppender;
 	private PrintStream out, err;
@@ -50,8 +51,14 @@ public class ServerConsole implements Runnable {
 	
 	public synchronized void startServer() {
 		// Check if the server is able to run
-		if(serverRunning || !spigotDirValidation()) {
+		if(serverRunning || !serverDirValidation()) {
 			return;
+		}
+		
+		try {
+			throw new IllegalArgumentException("Vish");
+		} catch(IllegalArgumentException e) {
+			e.printStackTrace();
 		}
 		
 		// Construct command
@@ -59,13 +66,13 @@ public class ServerConsole implements Runnable {
 		command.add("java");
 		String[] args = jvmArgs.trim().split(" "); 
 		for(int i = 0; i < args.length; i++) {
-			if(args[i].trim().isEmpty()) {
+			if(args[i].isBlank()) {
 				continue;
 			}
 			command.add(args[i]);
 		}
 		command.add("-jar");
-		command.add(spigotDir.getName());
+		command.add(serverDir.getName());
 		command.add("-nogui");
 		
 		// Displays the command for user
@@ -78,7 +85,7 @@ public class ServerConsole implements Runnable {
 		
 		// Make the process
 		ProcessBuilder builder = new ProcessBuilder(command);
-		builder.directory(spigotDir.getAbsoluteFile().getParentFile());
+		builder.directory(serverDir.getAbsoluteFile().getParentFile());
 		
 		try {
 			if(server != null && server.isAlive()) {
@@ -174,13 +181,7 @@ public class ServerConsole implements Runnable {
 	
 	public synchronized void forceStop() {
 		if(server != null && server.isAlive()) {
-			try {
-				serverOutput.write("stop");
-				serverOutput.flush();
-				server.destroyForcibly();
-			} catch(IOException e) {
-				e.printStackTrace();
-			}
+			server.destroyForcibly();
 		}
 	}
 	
@@ -204,15 +205,15 @@ public class ServerConsole implements Runnable {
 		}
 	}
 	
-	public boolean spigotDirValidation() {
-		boolean validate = spigotDir == null || !spigotDir.exists() 
-				|| !spigotDir.getAbsolutePath().endsWith(".jar") || !spigotDir.isFile();
+	public boolean serverDirValidation() {
+		boolean validate = serverDir == null || !serverDir.exists() 
+				|| !serverDir.getAbsolutePath().endsWith(".jar") || !serverDir.isFile();
 		if(validate) {
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.initOwner(display.getOwnerStage());
 			alert.setTitle(Main.getBundle().getString("error"));
-			alert.setHeaderText(Main.getBundle().getString("invalidSpigot"));
-			alert.setContentText(Main.getBundle().getString("invalidSpigotText"));
+			alert.setHeaderText(Main.getBundle().getString("invalidServer"));
+			alert.setContentText(Main.getBundle().getString("invalidServerText"));
 			Toolkit.getDefaultToolkit().beep();
 			alert.showAndWait();
 		}
@@ -241,21 +242,21 @@ public class ServerConsole implements Runnable {
 		if(serverRunning) {
 			stopServerThreads();
 		}
-		running = false;
-		notifyAll();
-		try {
-			reader.join();
-			input.close();
-			thrower.join();
-			throwerInput.close();
-		} catch(InterruptedException | IOException | NullPointerException e) {
-			e.printStackTrace();
+		if(running) {
+			running = false;
+			try {
+				reader.join();
+				input.close();
+				thrower.join();
+				throwerInput.close();
+			} catch(InterruptedException | IOException | NullPointerException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
 	private synchronized void stopServerThreads() {
 		serverRunning = false;
-		notifyAll();
 		try {
 			serverReader.join();
 			serverThrower.join();
@@ -270,88 +271,108 @@ public class ServerConsole implements Runnable {
 	}
 	
 	private void resetThreads() {
-		reader = new Thread(this);
-		thrower = new Thread(this);
+		reader = new Thread(() -> {
+			try {
+				while(running) {
+					synchronized(display) {
+						if(input.available() != 0) {
+							readText(input);
+						}
+					}
+				}
+			} catch(IOException e) {
+				exception(e);
+			}
+		});
+		thrower = new Thread(() -> {
+			try {
+				while(running) {
+					synchronized(display) {
+						if(throwerInput.available() != 0) {
+							readText(throwerInput);
+						}
+					}
+				}
+			} catch(IOException e) {
+				exception(e);
+			}
+		});
 		reader.setDaemon(true);
 		thrower.setDaemon(true);
 	}
 	
 	private void resetServerThreads() {
-		serverReader = new Thread(this);
-		serverThrower = new Thread(this);
+		serverReader = new Thread(() -> {
+			try {
+				while(serverRunning) {
+					synchronized(display) {
+						if(serverInput.ready()) {
+							readText(serverInput);
+						}
+					}
+				}
+			} catch(IOException e) {
+				exception(e);
+			}
+		});
+		serverThrower = new Thread(() -> {
+			try {
+				while(serverRunning) {
+					synchronized(display) {
+						if(serverThrowerInput.ready()) {
+							readText(serverThrowerInput);
+						}
+					}
+				}
+			} catch(IOException e) {
+				exception(e);
+			}
+		});
 		serverReader.setDaemon(true);
 		serverThrower.setDaemon(true);
 	}
 	
-	@Override
-	public void run() {
+	private void readText(BufferedReader reader) {
 		try {
-			Thread current = Thread.currentThread();
-			if(current == reader || current == thrower) {
-				while(running) {
-					synchronized(display) {
-						if(current == reader && input.available() != 0) {
-							readText(input);
-						} else if(current == thrower && throwerInput.available() != 0) {
-							readText(throwerInput);
-						}
-						display.wait(1);
-					}
-				}
-			} else if(current == serverReader || current == serverThrower) {
-				while(serverRunning) {
-					synchronized(display) {
-						if(current == serverReader && serverInput.ready()) {
-							readText(serverInput);
-						} else if(current == serverThrower && serverThrowerInput.ready()) {
-							readText(serverThrowerInput);
-						}
-						display.wait(1);
-					}
-				}
-			}
-		} catch (InterruptedException | IOException e) {
-			if(serverRunning) {
-				stopServer();
-			}
-			if(running) {
-				stopThreads();
-			}
-			e.printStackTrace();
-			Platform.exit();
-		}
-	}
-	
-	private synchronized void readText(BufferedReader reader) {
-		try {
-			textAppender.setText(reader.readLine() + "\n");
+			textAppender.setText(new String(reader.readLine().getBytes(), StandardCharsets.UTF_8) + "\n");
 			Platform.runLater(textAppender);
-		} catch (IOException | NullPointerException e) {
+			display.wait();
+		} catch (NullPointerException | InterruptedException | IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private synchronized void readText(InputStream stream) {
+	private void readText(InputStream stream) {
 		try {
 			byte[] array = new byte[stream.available()];
 			stream.read(array);
-			textAppender.setText(new String(array));
+			textAppender.setText(new String(array, StandardCharsets.UTF_8) + "\n");
 			Platform.runLater(textAppender);
-		} catch (IOException e) {
+			display.wait();
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private synchronized void exception(Exception e) {
+		running = false;
+		serverRunning = false;
+		System.setOut(out);
+		System.setErr(err);
+		e.printStackTrace();
+		Platform.exit();
 	}
 	
 	public boolean isServerRunning() {
 		return serverRunning;
 	}
 	
-	public File getSpigotDirectory() {
-		return spigotDir;
+	public File getServerDirectory() {
+		return serverDir;
 	}
 	
-	public void setSpigotDirectory(File spigotDir) {
-		this.spigotDir = spigotDir;
+	public void setServerDirectory(File serverDir) {
+		this.serverDir = serverDir;
 	}
 	
 	public String getJvmArgs() {

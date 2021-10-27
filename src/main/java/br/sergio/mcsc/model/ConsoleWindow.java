@@ -169,8 +169,8 @@ public class ConsoleWindow implements SettingsListener {
 			
 			@Override
 			public void handle(ActionEvent event) {
-				if(console.spigotDirValidation()) {
-					File folder = console.getSpigotDirectory().getAbsoluteFile().getParentFile();
+				if(console.serverDirValidation()) {
+					File folder = console.getServerDirectory().getAbsoluteFile().getParentFile();
 					try {
 						Desktop.getDesktop().open(folder);
 					} catch (IOException e) {

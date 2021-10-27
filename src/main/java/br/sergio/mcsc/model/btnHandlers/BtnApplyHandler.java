@@ -103,7 +103,7 @@ public class BtnApplyHandler implements EventHandler<ActionEvent>, SettingsListe
 			showAlert("cantChange", "cantChangeRuntime");
 			return;
 		}
-		console.setSpigotDirectory(new File(spigotDir));
+		console.setServerDirectory(new File(spigotDir));
 		console.setJvmArgs(jvmArgs);
 		Currents.colorType = colorType;
 		Currents.colorTheme = newColor;

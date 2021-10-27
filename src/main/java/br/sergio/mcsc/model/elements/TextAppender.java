@@ -14,6 +14,9 @@ public class TextAppender implements Runnable {
 	@Override
 	public void run() {
 		display.appendText(text);
+		synchronized(display) {
+			display.notify();
+		}
 	}
 	
 	public void setText(String text) {

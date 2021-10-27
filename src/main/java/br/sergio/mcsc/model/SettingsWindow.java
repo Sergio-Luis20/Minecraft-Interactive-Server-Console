@@ -262,7 +262,7 @@ public class SettingsWindow implements SettingsListener {
 		serverField.setText(Currents.spigotDir);
 		
 		// Sets the spigot directory on console
-		console.setSpigotDirectory(new File(Currents.spigotDir));
+		console.setServerDirectory(new File(Currents.spigotDir));
 		
 		ImageView folderIcon = new ImageView("/folder-icon.png");
 		folderIcon.setFitWidth(14);
