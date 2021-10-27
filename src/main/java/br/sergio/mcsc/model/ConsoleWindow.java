@@ -86,7 +86,7 @@ public class ConsoleWindow implements SettingsListener {
 		double sceneWidth = scene.getWidth();
 		double sceneHeight = scene.getHeight();
 		
-		double hSpacing = (scene.getWidth() - 7 * buttonWidth) / 8;
+		double hSpacing = (sceneWidth - 7 * buttonWidth) / 8;
 		double buttonVerticalPos = sceneHeight - buttonHeight - vSpacing;
 		
 		Polynomial pol = new Polynomial(buttonWidth + hSpacing, hSpacing);
