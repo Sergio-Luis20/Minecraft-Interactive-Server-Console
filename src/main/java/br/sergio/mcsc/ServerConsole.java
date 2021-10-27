@@ -11,7 +11,6 @@ import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -328,7 +327,7 @@ public class ServerConsole {
 	
 	private void readText(BufferedReader reader) {
 		try {
-			textAppender.setText(new String(reader.readLine().getBytes(), StandardCharsets.UTF_8) + "\n");
+			textAppender.setText(reader.readLine() + "\n");
 			Platform.runLater(textAppender);
 			display.wait();
 		} catch (NullPointerException | InterruptedException | IOException e) {
@@ -340,7 +339,7 @@ public class ServerConsole {
 		try {
 			byte[] array = new byte[stream.available()];
 			stream.read(array);
-			textAppender.setText(new String(array, StandardCharsets.UTF_8) + "\n");
+			textAppender.setText(new String(array));
 			Platform.runLater(textAppender);
 			display.wait();
 		} catch (IOException | InterruptedException e) {
