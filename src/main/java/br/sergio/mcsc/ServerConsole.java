@@ -55,12 +55,6 @@ public class ServerConsole {
 			return;
 		}
 		
-		try {
-			throw new IllegalArgumentException("Vish");
-		} catch(IllegalArgumentException e) {
-			e.printStackTrace();
-		}
-		
 		// Construct command
 		List<String> command = new ArrayList<String>();
 		command.add("java");
