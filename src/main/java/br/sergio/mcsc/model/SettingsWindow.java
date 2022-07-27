@@ -1,34 +1,14 @@
 package br.sergio.mcsc.model;
 
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
 import br.sergio.mcsc.Main;
 import br.sergio.mcsc.ServerConsole;
 import br.sergio.mcsc.SettingsListener;
 import br.sergio.mcsc.model.btnHandlers.BtnApplyHandler;
-import br.sergio.mcsc.model.controls.ConsoleButton;
-import br.sergio.mcsc.model.controls.ConsoleComboBox;
-import br.sergio.mcsc.model.controls.ConsoleLabel;
-import br.sergio.mcsc.model.controls.ConsoleRadioButton;
-import br.sergio.mcsc.model.controls.ConsoleTextField;
+import br.sergio.mcsc.model.controls.*;
 import br.sergio.mcsc.model.elements.ConsoleComboBoxCellFactory;
 import br.sergio.mcsc.model.elements.Currents;
 import br.sergio.mcsc.model.elements.RGBFormatter;
-import br.sergio.mcsc.utils.Utils;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
-import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -38,11 +18,16 @@ import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 public class SettingsWindow implements SettingsListener {
 	
 	private Stage stage;
-	private Scene scene;
 	private AnchorPane root;
 	private ToggleGroup group;
 	private ConsoleComboBox basicColors, families, sizes, lang;
@@ -51,11 +36,10 @@ public class SettingsWindow implements SettingsListener {
 	private Map<String, String> sortedColors;
 	
 	public SettingsWindow(ConsoleWindow consoleWindow) {
-		Utils.validationNull(consoleWindow);
-		this.console = consoleWindow.getConsole();
+		this.console = Objects.requireNonNull(consoleWindow).getConsole();
 		stage = new Stage();
 		root = new AnchorPane();
-		scene = new Scene(root, 430, 480);
+		Scene scene = new Scene(root, 430, 480);
 		stage.setResizable(false);
 		stage.setTitle(Main.getBundle().getString("settings"));
 		stage.getIcons().add(new Image("/gear-icon.png"));
@@ -143,72 +127,67 @@ public class SettingsWindow implements SettingsListener {
 		hex.setPromptText("Hex");
 		
 		// Add the switch listener
-		group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-			
-			@Override
-			public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
-				switch(((ConsoleRadioButton) newValue).getText()) {
-					case "RGB":
-						basicColors.setDisable(true);
-						hex.setDisable(true);
-						red.setDisable(false);
-						green.setDisable(false);
-						blue.setDisable(false);
-						hex.clear();
-						break;
-					case "Hexadecimal":
-						basicColors.setDisable(true);
-						hex.setDisable(false);
-						red.setDisable(true);
-						green.setDisable(true);
-						blue.setDisable(true);
-						red.clear();
-						green.clear();
-						blue.clear();
-						break;
-					default:
-						basicColors.setDisable(false);
-						hex.setDisable(true);
-						red.setDisable(true);
-						green.setDisable(true);
-						blue.setDisable(true);
-						red.clear();
-						green.clear();
-						blue.clear();
-						hex.clear();
-						break;
+		group.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
+			switch (((ConsoleRadioButton) newValue).getText()) {
+				case "RGB" -> {
+					basicColors.setDisable(true);
+					hex.setDisable(true);
+					red.setDisable(false);
+					green.setDisable(false);
+					blue.setDisable(false);
+					hex.clear();
+				}
+				case "Hexadecimal" -> {
+					basicColors.setDisable(true);
+					hex.setDisable(false);
+					red.setDisable(true);
+					green.setDisable(true);
+					blue.setDisable(true);
+					red.clear();
+					green.clear();
+					blue.clear();
+				}
+				default -> {
+					basicColors.setDisable(false);
+					hex.setDisable(true);
+					red.setDisable(true);
+					green.setDisable(true);
+					blue.setDisable(true);
+					red.clear();
+					green.clear();
+					blue.clear();
+					hex.clear();
 				}
 			}
-			
 		});
 		
 		// Select the toggle which is in config.json and put the corresponding value in its node(s)
-		switch(Currents.colorType) {
-			case "RGB":
+		switch (Currents.colorType) {
+			case "RGB" -> {
 				group.selectToggle(rgb);
 				Color color = Color.web(Currents.colorTheme);
 				red.setText(String.valueOf((int) (color.getRed() * 255)));
 				green.setText(String.valueOf((int) (color.getGreen() * 255)));
 				blue.setText(String.valueOf((int) (color.getBlue() * 255)));
-				break;
-			case "Hexadecimal":
+			}
+			case "Hexadecimal" -> {
 				group.selectToggle(hexadecimal);
 				hex.setText(Currents.colorTheme);
-				break;
-			default:
+			}
+			default -> {
 				group.selectToggle(basics);
 				loop:
-				for(String colorName : sortedColors.keySet()) {
-					if(Currents.colorTheme.equals(sortedColors.get(colorName))) {
-						for(ConsoleLabel label : basicColors.getItems()) {
-							if(label.getText().equals(Main.getBundle().getString(colorName))) {
+				for (String colorName : sortedColors.keySet()) {
+					if (Currents.colorTheme.equals(sortedColors.get(colorName))) {
+						for (ConsoleLabel label : basicColors.getItems()) {
+							if (label.getText().equals(Main.getBundle().getString(colorName))) {
 								basicColors.getSelectionModel().select(label);
 								break loop;
 							}
 						}
 					}
 				}
-				break;
+			}
 		}
 		
 		// Font options
@@ -259,32 +238,27 @@ public class SettingsWindow implements SettingsListener {
 		serverField = new ConsoleTextField();
 		serverField.setPrefSize(156, 25);
 		serverField.relocate(200, 300);
-		serverField.setText(Currents.spigotDir);
+		serverField.setText(Currents.serverDir);
 		
 		// Sets the spigot directory on console
-		console.setServerDirectory(new File(Currents.spigotDir));
+		console.setServerDirectory(new File(Currents.serverDir));
 		
 		ImageView folderIcon = new ImageView("/folder-icon.png");
 		folderIcon.setFitWidth(14);
 		folderIcon.setFitHeight(14);
 		ConsoleButton search = new ConsoleButton(null, false, folderIcon);
 		search.relocate(366, 300);
-		search.setOnAction(new EventHandler<ActionEvent>() {
-			
-			@Override
-			public void handle(ActionEvent event) {
-				FileChooser chooser = new FileChooser();
-				FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter(Main.getBundle().getString("jarFile"), "*.jar");
-				chooser.setTitle(Main.getBundle().getString("serverDir"));
-				chooser.getExtensionFilters().add(filter);
-				chooser.setInitialDirectory(new File("").getAbsoluteFile());
-				File spigot = chooser.showOpenDialog(stage);
-				if(spigot != null) {
-					serverField.setText(spigot.getAbsolutePath());
-				}
-				search.toNormalStyle();
+		search.setOnAction(event -> {
+			FileChooser chooser = new FileChooser();
+			FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter(Main.getBundle().getString("jarFile"), "*.jar");
+			chooser.setTitle(Main.getBundle().getString("serverDir"));
+			chooser.getExtensionFilters().add(filter);
+			chooser.setInitialDirectory(new File("").getAbsoluteFile());
+			File spigot = chooser.showOpenDialog(stage);
+			if(spigot != null) {
+				serverField.setText(spigot.getAbsolutePath());
 			}
-			
+			search.toNormalStyle();
 		});
 		
 		// JVM arguments label

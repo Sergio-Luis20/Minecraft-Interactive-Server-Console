@@ -2,13 +2,14 @@ package br.sergio.mcsc.model.elements;
 
 import br.sergio.mcsc.model.DisplayServerConsole;
 
+import java.util.Objects;
+
 public class TextAppender implements Runnable {
 	
-	private String text;
+	private String text = "";
 	private DisplayServerConsole display;
 	
-	public TextAppender(DisplayServerConsole display) {
-		this.display = display;
+	public TextAppender() {
 	}
 	
 	@Override
@@ -24,6 +25,6 @@ public class TextAppender implements Runnable {
 	}
 	
 	public void setDisplay(DisplayServerConsole display) {
-		this.display = display;
+		this.display = Objects.requireNonNull(display);
 	}
 }

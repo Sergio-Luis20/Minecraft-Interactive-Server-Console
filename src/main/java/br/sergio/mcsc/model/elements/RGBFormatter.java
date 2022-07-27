@@ -3,13 +3,14 @@ package br.sergio.mcsc.model.elements;
 import br.sergio.mcsc.Main;
 import br.sergio.mcsc.SettingsListener;
 import br.sergio.mcsc.model.controls.ConsoleTextField;
-import br.sergio.mcsc.utils.Utils;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
+
+import java.util.Objects;
 
 public class RGBFormatter implements ChangeListener<String>, SettingsListener {
 	
@@ -18,23 +19,17 @@ public class RGBFormatter implements ChangeListener<String>, SettingsListener {
 	private Runnable runnable;
 	
 	public RGBFormatter(ConsoleTextField source, Stage alertOwner) {
-		Utils.validationNull(source);
-		this.source = source;
+		this.source = Objects.requireNonNull(source);
 		Main.addSettingsListener(this);
 		alert = new Alert(AlertType.WARNING);
 		alert.initOwner(alertOwner);
 		alert.setTitle(Main.getBundle().getString("warning"));
 		alert.setHeaderText(Main.getBundle().getString("invalidRGBValue"));
 		alert.setContentText(Main.getBundle().getString("rgbWarningText"));
-		runnable = new Runnable() {
-			
-			@Override
-			public void run() {
-				alert.showAndWait();
-				source.clear();
-				source.textProperty().addListener(RGBFormatter.this);
-			}
-			
+		runnable = () -> {
+			alert.showAndWait();
+			source.clear();
+			source.textProperty().addListener(RGBFormatter.this);
 		};
 	}
 	

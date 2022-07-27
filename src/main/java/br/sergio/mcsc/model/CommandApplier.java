@@ -2,18 +2,18 @@ package br.sergio.mcsc.model;
 
 import br.sergio.mcsc.ServerConsole;
 import br.sergio.mcsc.model.controls.ConsoleTextField;
-import br.sergio.mcsc.utils.Utils;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+
+import java.util.Objects;
 
 public class CommandApplier implements EventHandler<KeyEvent> {
 	
 	private ServerConsole console;
 	
 	public CommandApplier(ServerConsole console) {
-		Utils.validationNull(console);
-		this.console = console;
+		this.console = Objects.requireNonNull(console);
 	}
 	
 	@Override

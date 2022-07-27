@@ -3,7 +3,6 @@ package br.sergio.mcsc.model.controls;
 import br.sergio.mcsc.Main;
 import br.sergio.mcsc.SettingsListener;
 import br.sergio.mcsc.io.Styler;
-import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -41,20 +40,15 @@ public class ConsoleButton extends Button implements SettingsListener {
 		bundleText = text;
 		setFocusTraversable(false);
 		setStyle(normalExitedStyle);
-		addEventHandler(MouseEvent.ANY, new EventHandler<MouseEvent>() {
-			
-			@Override
-			public void handle(MouseEvent event) {
-				EventType<? extends MouseEvent> type = event.getEventType();
-				if(type == MouseEvent.MOUSE_ENTERED || type == MouseEvent.MOUSE_RELEASED) {
-					setStyle(enteredReleasedStyle);
-				} else if(type == MouseEvent.MOUSE_PRESSED) {
-					setStyle(pressedStyle);
-				} else if(type == MouseEvent.MOUSE_EXITED) {
-					setStyle(normalExitedStyle);
-				}
+		addEventHandler(MouseEvent.ANY, event -> {
+			EventType<? extends MouseEvent> type = event.getEventType();
+			if(type == MouseEvent.MOUSE_ENTERED || type == MouseEvent.MOUSE_RELEASED) {
+				setStyle(enteredReleasedStyle);
+			} else if(type == MouseEvent.MOUSE_PRESSED) {
+				setStyle(pressedStyle);
+			} else if(type == MouseEvent.MOUSE_EXITED) {
+				setStyle(normalExitedStyle);
 			}
-			
 		});
 		Main.addSettingsListener(this);
 	}

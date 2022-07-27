@@ -9,8 +9,8 @@ public class ConsoleComboBoxCellFactory implements Callback<ListView<ConsoleLabe
 	
 	@Override
 	public ListCell<ConsoleLabel> call(ListView<ConsoleLabel> param) {
-		ListCell<ConsoleLabel> listCell = new ListCell<ConsoleLabel>() {
-			
+		ListCell<ConsoleLabel> listCell = new ListCell<>() {
+
 			@Override
 			protected void updateItem(ConsoleLabel item, boolean empty) {
 				super.updateItem(item, empty);
@@ -20,7 +20,7 @@ public class ConsoleComboBoxCellFactory implements Callback<ListView<ConsoleLabe
 					setGraphic(new ConsoleLabel(item.getBundleText(), item.isBundle(), item.getURL()));
 				}
 			}
-			
+
 		};
 		listCell.setStyle("-fx-background-color: #000000;");
 		return listCell;

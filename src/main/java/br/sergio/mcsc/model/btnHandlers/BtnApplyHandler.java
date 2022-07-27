@@ -1,11 +1,5 @@
 package br.sergio.mcsc.model.btnHandlers;
 
-import java.awt.Toolkit;
-import java.io.File;
-import java.io.IOException;
-
-import org.json.simple.JSONObject;
-
 import br.sergio.mcsc.Main;
 import br.sergio.mcsc.ServerConsole;
 import br.sergio.mcsc.SettingsListener;
@@ -16,13 +10,18 @@ import br.sergio.mcsc.model.controls.ConsoleButton;
 import br.sergio.mcsc.model.controls.ConsoleLabel;
 import br.sergio.mcsc.model.controls.ConsoleRadioButton;
 import br.sergio.mcsc.model.elements.Currents;
-import br.sergio.mcsc.utils.Utils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.paint.Color;
+import org.json.simple.JSONObject;
+
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.Objects;
 
 public class BtnApplyHandler implements EventHandler<ActionEvent>, SettingsListener {
 	
@@ -34,14 +33,13 @@ public class BtnApplyHandler implements EventHandler<ActionEvent>, SettingsListe
 	private ConsoleButton source;
 	
 	public BtnApplyHandler(SettingsWindow settingsWindow, ServerConsole console) {
-		Utils.validationNull(settingsWindow, console);
 		Main.addSettingsListener(this);
-		this.settingsWindow = settingsWindow;
-		this.console = console;
+		this.settingsWindow = Objects.requireNonNull(settingsWindow);
+		this.console = Objects.requireNonNull(console);
 		alert = new Alert(AlertType.WARNING);
 		alert.initOwner(settingsWindow.getStage());
 		alert.setTitle(Main.getBundle().getString("warning"));
-		oldSpigot = Currents.spigotDir;
+		oldSpigot = Currents.serverDir;
 		oldJvmArgs = Currents.jvmArgs;
 	}
 	
@@ -52,64 +50,69 @@ public class BtnApplyHandler implements EventHandler<ActionEvent>, SettingsListe
 		ToggleGroup group = settingsWindow.getRadioButtonsGroup();
 		String colorType = ((ConsoleRadioButton) group.getSelectedToggle()).getText();
 		String newColor;
-		switch(colorType) {
-			case "RGB":
+		switch (colorType) {
+			case "RGB" -> {
 				String redText = settingsWindow.getRed().getText();
 				String greenText = settingsWindow.getGreen().getText();
 				String blueText = settingsWindow.getBlue().getText();
-				if(redText.isEmpty() || greenText.isEmpty() || blueText.isEmpty()) {
+				if (redText.isEmpty() || greenText.isEmpty() || blueText.isEmpty()) {
 					showAlert("invalidRGBValue", "rgbWarningText");
-					
 					return;
 				}
-				int red = Integer.parseInt(redText);
-				int green = Integer.parseInt(greenText);
-				int blue = Integer.parseInt(blueText);
-				newColor = Utils.parseColorWeb(Color.rgb(red, green, blue));
-				break;
-			case "Hexadecimal":
+				int red, green, blue;
+				try {
+					red = Integer.parseInt(redText);
+					green = Integer.parseInt(greenText);
+					blue = Integer.parseInt(blueText);
+				} catch(NumberFormatException e) {
+					showAlert("invalidRGBValue", "rgbWarningText");
+					return;
+				}
+				newColor = "#" + Color.rgb(red, green, blue).toString().substring(2, 8);
+			}
+			case "Hexadecimal" -> {
 				String hex = settingsWindow.getHex().getText();
 				String validChars = "0123456789abcdefABCDEF";
 				boolean invalidChar = false;
 				char[] charArray = hex.toCharArray();
-				for(int i = 1; i < charArray.length; i++) {
-					if(!validChars.contains(String.valueOf(charArray[i]))) {
+				for (int i = 1; i < charArray.length; i++) {
+					if (!validChars.contains(String.valueOf(charArray[i]))) {
 						invalidChar = true;
 						break;
 					}
 				}
-				if(!hex.startsWith("#") || hex.length() != 7 || invalidChar) {
+				if (!hex.startsWith("#") || hex.length() != 7 || invalidChar) {
 					showAlert("invalidHexValue", "hexWarningText");
 					return;
 				}
 				newColor = hex;
-				break;
-			default:
+			}
+			default -> {
 				ConsoleLabel selected = settingsWindow.getBasicColors().getSelectionModel().getSelectedItem();
-				if(selected == null) {
+				if (selected == null) {
 					showAlert("invalidBasicValue", "basicWarningText");
 					return;
 				}
 				newColor = settingsWindow.getSortedColors().get(selected.getBundleText());
-				break;
+			}
 		}
 		newColor = newColor.toLowerCase();
 		String fontFamily = settingsWindow.getFamilies().getSelectionModel().getSelectedItem().getText();
 		String consoleSize = settingsWindow.getSizes().getSelectionModel().getSelectedItem().getText() + "pt";
-		String spigotDir = settingsWindow.getServerField().getText();
+		String serverDir = settingsWindow.getServerField().getText();
 		String jvmArgs = settingsWindow.getJVMArgs().getText();
 		String language = settingsWindow.getLang().getSelectionModel().getSelectedItem().getText();
-		if(console.isServerRunning() && (!spigotDir.equals(oldSpigot) || !jvmArgs.equals(oldJvmArgs))) {
+		if(console.isServerRunning() && (!serverDir.equals(oldSpigot) || !jvmArgs.equals(oldJvmArgs))) {
 			showAlert("cantChange", "cantChangeRuntime");
 			return;
 		}
-		console.setServerDirectory(new File(spigotDir));
+		console.setServerDirectory(new File(serverDir));
 		console.setJvmArgs(jvmArgs);
 		Currents.colorType = colorType;
 		Currents.colorTheme = newColor;
 		Currents.fontFamily = fontFamily;
 		Currents.consoleFontSize = consoleSize;
-		Currents.spigotDir = spigotDir;
+		Currents.serverDir = serverDir;
 		Currents.jvmArgs = jvmArgs;
 		Currents.language = language;
 		Styler.TEXT_AREA.setStyle(Styler.createStyle("2px", newColor, "#000000", newColor, null, fontFamily, consoleSize, newColor, "#000000"));
@@ -128,7 +131,7 @@ public class BtnApplyHandler implements EventHandler<ActionEvent>, SettingsListe
 				saves.replace("ColorTheme", newColor);
 				saves.replace("FontFamily", fontFamily);
 				saves.replace("ConsoleFontSize", consoleSize);
-				saves.replace("SpigotDirectory", spigotDir);
+				saves.replace("ServerDirectory", serverDir);
 				saves.replace("JVMArguments", jvmArgs);
 				saves.replace("Language", language);
 				config.saveConfig();

@@ -12,7 +12,7 @@ public class Currents {
 	public static String colorTheme;
 	public static String fontFamily;
 	public static String consoleFontSize;
-	public static String spigotDir;
+	public static String serverDir;
 	public static String jvmArgs;
 	public static String language;
 	
@@ -23,20 +23,14 @@ public class Currents {
 			colorTheme = (String) saves.get("ColorTheme");
 			fontFamily = (String) saves.get("FontFamily");
 			consoleFontSize = (String) saves.get("ConsoleFontSize");
-			spigotDir = (String) saves.get("SpigotDirectory");
+			serverDir = (String) saves.get("ServerDirectory");
 			jvmArgs = (String) saves.get("JVMArguments");
 			String lang = (String) saves.get("Language");
 			if(lang.isEmpty()) {
-				switch(Locale.getDefault().getLanguage()) {
-					case "pt":
-						language = "Português";
-						break;
-					case "es":
-						language = "Español";
-						break;
-					default:
-						language = "English";
-						break;
+				switch (Locale.getDefault().getLanguage()) {
+					case "pt" -> language = "Português";
+					case "es" -> language = "Español";
+					default -> language = "English";
 				}
 			} else {
 				language = lang;
@@ -46,7 +40,7 @@ public class Currents {
 			colorTheme = "#00ff00";
 			fontFamily = "\"Lucida Console\"";
 			consoleFontSize = "11pt";
-			spigotDir = "";
+			serverDir = "";
 			jvmArgs = "";
 			language = "English";
 		}

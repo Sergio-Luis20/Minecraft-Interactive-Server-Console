@@ -3,9 +3,10 @@ package br.sergio.mcsc.model;
 import br.sergio.mcsc.Main;
 import br.sergio.mcsc.SettingsListener;
 import br.sergio.mcsc.io.Styler;
-import br.sergio.mcsc.utils.Utils;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
+
+import java.util.Objects;
 
 public class DisplayServerConsole extends TextArea implements SettingsListener {
 	
@@ -30,8 +31,7 @@ public class DisplayServerConsole extends TextArea implements SettingsListener {
 	
 	public DisplayServerConsole(Stage owner) {
 		super();
-		Utils.validationNull(owner);
-		ownerStage = owner;
+		ownerStage = Objects.requireNonNull(owner);
 		setStyle(style);
 		setWrapText(true);
 		setEditable(false);

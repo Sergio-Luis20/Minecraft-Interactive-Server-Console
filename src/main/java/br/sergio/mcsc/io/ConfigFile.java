@@ -39,8 +39,7 @@ public class ConfigFile {
 		if(!file.exists()) {
 			try {
 				createFile();
-				byte[] array = new byte[inputStream.available()];
-				inputStream.read(array);
+				byte[] array = inputStream.readAllBytes();
 				OutputStream outputStream = new FileOutputStream(file);
 				outputStream.write(array);
 				outputStream.close();
@@ -57,11 +56,7 @@ public class ConfigFile {
 	public void saveConfig() throws IOException {
 		Files.write(file.toPath(), object.toJSONString().getBytes());
 	}
-	
-	public void saveDefaultConfig() throws ConfigException {
-		createFileFromResource();
-	}
-	
+
 	private void createFile() throws IOException {
 		File here = new File("");
 		DosFileAttributeView view = Files.getFileAttributeView(here.toPath(), DosFileAttributeView.class);

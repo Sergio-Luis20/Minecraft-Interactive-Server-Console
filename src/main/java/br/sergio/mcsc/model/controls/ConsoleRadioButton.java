@@ -3,6 +3,7 @@ package br.sergio.mcsc.model.controls;
 import br.sergio.mcsc.Main;
 import br.sergio.mcsc.SettingsListener;
 import br.sergio.mcsc.io.Styler;
+import javafx.geometry.Pos;
 import javafx.scene.control.RadioButton;
 
 public class ConsoleRadioButton extends RadioButton implements SettingsListener {
@@ -29,6 +30,8 @@ public class ConsoleRadioButton extends RadioButton implements SettingsListener 
 		bundleText = text;
 		setStyle(style);
 		Main.addSettingsListener(this);
+		setAlignment(Pos.CENTER_LEFT);
+		setPrefHeight(25);
 	}
 	
 	@Override
